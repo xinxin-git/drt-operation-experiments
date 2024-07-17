@@ -98,7 +98,11 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
             }
 
             if (i % displayCounter == 0) {
-                log.info("Ruin and Recreate iterations #" + i + ": new score = " + newScore + ", accepted = " + solutionAcceptor.acceptSolutionOrNot(newScore, currentScore, i, maxIterations, initialThreshold, halfLife) + ", current best score = " + currentBestScore);
+                log.info("Ruin and Recreate iterations #" + i + ": new score = " + newScore + ", " +
+                        "accepted = " + solutionAcceptor.acceptSolutionOrNot(newScore, currentScore, i, maxIterations, initialThreshold, halfLife) +
+                        ", initial threshold = " + solutionAcceptor.getInitialThreshold() +
+                        ", half life = " + solutionAcceptor.getHalfLife() +
+                        ", current best score = " + currentBestScore);
                 displayCounter *= 2;
             }
 
