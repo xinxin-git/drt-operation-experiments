@@ -44,6 +44,12 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
     @CommandLine.Option(names = "--prebooked-solver", defaultValue = "SEQ_INSERTION", description = "Prebooked trips solver")
     private OnlineAndOfflineDrtOperationModule.OfflineSolverType offlineSolver;
 
+    @CommandLine.Option(names = "--initialThreshold", description = "number of iterations for iterative offline solver", defaultValue = "0.5")
+    private double initialThreshold;
+
+    @CommandLine.Option(names = "--halfLife", description = "number of iterations for iterative offline solver", defaultValue = "0.1")
+    private double halfLife;
+
     @CommandLine.Option(names = "--iterations", description = "number of iterations for iterative offline solver", defaultValue = "0")
     private int iterations;
 
@@ -75,7 +81,7 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
         // Install the new DRT optimizer and the linear stop duration
         for (DrtConfigGroup drtCfg : multiModeDrtConfig.getModalElements()) {
             controler.addOverridingQSimModule(new OnlineAndOfflineDrtOperationModule(prebookedPlans, drtCfg,
-                    horizon, interval, iterations, false, seed, offlineSolver));
+                    horizon, interval, iterations, false, seed, offlineSolver,initialThreshold,halfLife));
             controler.addOverridingModule(new LinearStopDurationModule(drtCfg));
             // If we are doing fully offline optimization, then no need to generate the standard travel time matrix
             if (prebookedPlansFile.equals("all")) {

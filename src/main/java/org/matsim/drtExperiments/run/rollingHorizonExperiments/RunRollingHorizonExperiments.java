@@ -96,7 +96,7 @@ public class RunRollingHorizonExperiments implements MATSimAppCommand {
                     // Install the new DRT optimizer and the linear stop duration
                     for (DrtConfigGroup drtCfg : multiModeDrtConfig.getModalElements()) {
                         controler.addOverridingQSimModule(new OnlineAndOfflineDrtOperationModule(prebookedPlans, drtCfg,
-                                horizon, interval, iterations, false, seed, offlineSolver));
+                                horizon, interval, iterations, false, seed, offlineSolver,0.5,0.1));
                         controler.addOverridingModule(new LinearStopDurationModule(drtCfg));
                         // If we are doing fully offline optimization, then no need to generate the standard travel time matrix
                         if (prebookedPlansFile.equals("all")) {

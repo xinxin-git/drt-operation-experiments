@@ -51,7 +51,7 @@ public class RunOnlineStrategy implements MATSimAppCommand {
         Population prebookedPlans = PopulationUtils.createPopulation(ConfigUtils.createConfig()); // Set the pre-booked plans empty --> no pre-booked trips
         for (DrtConfigGroup drtCfg : multiModeDrtConfig.getModalElements()) {
             controler.addOverridingQSimModule(new OnlineAndOfflineDrtOperationModule(prebookedPlans, drtCfg,
-                    86400, 86400, 0, false, 0, OnlineAndOfflineDrtOperationModule.OfflineSolverType.SEQ_INSERTION));
+                    86400, 86400, 0, false, 0, OnlineAndOfflineDrtOperationModule.OfflineSolverType.SEQ_INSERTION,0.5,0.1));
             controler.addOverridingModule(new LinearStopDurationModule(drtCfg));
         }
         controler.run();

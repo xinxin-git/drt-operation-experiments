@@ -36,9 +36,11 @@ public class OnlineAndOfflineDrtOperationModule extends AbstractDvrpModeQSimModu
     private final boolean multiThread;
     private final long seed;
     private final OfflineSolverType offlineSolverType;
+    private final double initialThreshold;
+    private final double halfLife;
 
     public OnlineAndOfflineDrtOperationModule(Population prebookedPlans, DrtConfigGroup drtConfigGroup, double horizon,
-                                              double interval, int maxIterations, boolean multiThread, long seed, OfflineSolverType type) {
+                                              double interval, int maxIterations, boolean multiThread, long seed, OfflineSolverType type, double initialThreshold, double halfLife) {
         super(drtConfigGroup.getMode());
         this.prebookedPlans = prebookedPlans;
         this.drtConfigGroup = drtConfigGroup;
@@ -48,6 +50,8 @@ public class OnlineAndOfflineDrtOperationModule extends AbstractDvrpModeQSimModu
         this.multiThread = multiThread;
         this.seed = seed;
         this.offlineSolverType = type;
+        this.initialThreshold =  initialThreshold;
+        this.halfLife  = halfLife;
     }
 
     public enum OfflineSolverType {JSPRIT, SEQ_INSERTION, REGRET_INSERTION, RUIN_AND_RECREATE}
@@ -84,7 +88,7 @@ public class OnlineAndOfflineDrtOperationModule extends AbstractDvrpModeQSimModu
             case RUIN_AND_RECREATE -> bindModal(OfflineSolver.class).toProvider(modalProvider(
                     getter -> new RuinAndRecreateOfflineSolver(maxIteration,
                             getter.getModal(Network.class), getter.getModal(TravelTime.class), drtConfigGroup,
-                            new Random(seed))));
+                            new Random(seed),initialThreshold,halfLife)));
             default -> throw new RuntimeException("The solver is not implemented!");
         }
 

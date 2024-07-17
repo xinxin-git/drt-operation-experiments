@@ -18,7 +18,7 @@ import org.matsim.drtExperiments.offlineStrategy.OfflineSolverRegretHeuristic;
 import java.util.*;
 
 public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, TravelTime travelTime,
-                                           DrtConfigGroup drtConfigGroup, Random random) implements OfflineSolver {
+                                           DrtConfigGroup drtConfigGroup, Random random,double initialThreshold, double halfLife) implements OfflineSolver {
     private static final Logger log = LogManager.getLogger(RuinAndRecreateOfflineSolver.class);
 
     @Override
@@ -61,7 +61,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
         FleetSchedules currentBestSolution = initialSolution;
         double currentBestScore = initialScore;
 
-        // Initialize the fall back solution (set to the initial solution)
+        // Initialize the fallback solution (set to the initial solution)
         FleetSchedules currentSolution = initialSolution;
         double currentScore = initialScore;
 
@@ -88,7 +88,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
 
             // Score the new solution
             double newScore = solutionCostCalculator.calculateSolutionCost(newSolution, time);
-            if (solutionAcceptor.acceptSolutionOrNot(newScore, currentScore, i, maxIterations)) {
+            if (solutionAcceptor.acceptSolutionOrNot(newScore, currentScore, i, maxIterations,initialThreshold,halfLife)) {
                 currentSolution = newSolution;
                 currentScore = newScore;
                 if (newScore < currentBestScore) {
@@ -98,7 +98,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
             }
 
             if (i % displayCounter == 0) {
-                log.info("Ruin and Recreate iterations #" + i + ": new score = " + newScore + ", accepted = " + solutionAcceptor.acceptSolutionOrNot(newScore, currentScore, i, maxIterations) + ", current best score = " + currentBestScore);
+                log.info("Ruin and Recreate iterations #" + i + ": new score = " + newScore + ", accepted = " + solutionAcceptor.acceptSolutionOrNot(newScore, currentScore, i, maxIterations, initialThreshold, halfLife) + ", current best score = " + currentBestScore);
                 displayCounter *= 2;
             }
 
