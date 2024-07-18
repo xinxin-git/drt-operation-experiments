@@ -39,10 +39,11 @@ public class OnlineAndOfflineDrtOperationModule extends AbstractDvrpModeQSimModu
     private final double initialThreshold;
     private final double halfLife;
     private final double probability;
+    private final double proportion_to_remove;
 
     public OnlineAndOfflineDrtOperationModule(Population prebookedPlans, DrtConfigGroup drtConfigGroup, double horizon,
                                               double interval, int maxIterations, boolean multiThread, long seed, OfflineSolverType type,
-                                              double initialThreshold, double halfLife, double probability) {
+                                              double initialThreshold, double halfLife, double probability,double proportion_to_remove) {
         super(drtConfigGroup.getMode());
         this.prebookedPlans = prebookedPlans;
         this.drtConfigGroup = drtConfigGroup;
@@ -52,9 +53,11 @@ public class OnlineAndOfflineDrtOperationModule extends AbstractDvrpModeQSimModu
         this.multiThread = multiThread;
         this.seed = seed;
         this.offlineSolverType = type;
-        this.initialThreshold =  initialThreshold;
-        this.halfLife  = halfLife;
-        this.probability =  probability;
+        this.initialThreshold = initialThreshold;
+        this.halfLife = halfLife;
+        this.probability = probability;
+        this.proportion_to_remove = proportion_to_remove;
+
     }
 
     public enum OfflineSolverType {JSPRIT, SEQ_INSERTION, REGRET_INSERTION, RUIN_AND_RECREATE}
@@ -91,7 +94,7 @@ public class OnlineAndOfflineDrtOperationModule extends AbstractDvrpModeQSimModu
             case RUIN_AND_RECREATE -> bindModal(OfflineSolver.class).toProvider(modalProvider(
                     getter -> new RuinAndRecreateOfflineSolver(maxIteration,
                             getter.getModal(Network.class), getter.getModal(TravelTime.class), drtConfigGroup,
-                            new Random(seed),initialThreshold,halfLife,probability)));
+                            new Random(seed),initialThreshold,halfLife,probability,proportion_to_remove)));
             default -> throw new RuntimeException("The solver is not implemented!");
         }
 

@@ -8,10 +8,11 @@ import java.util.*;
 
 public class RandomRuinSelector implements RuinSelector {
     private final Random random;
-    private final static double PROPORTION_TO_REMOVE = 0.3;
+    private final double proportion_to_remove;
 
-    public RandomRuinSelector(Random random) {
+    public RandomRuinSelector(Random random,double proportion_to_remove) {
         this.random = random;
+        this.proportion_to_remove  = proportion_to_remove;
     }
 
     @Override
@@ -22,7 +23,7 @@ public class RandomRuinSelector implements RuinSelector {
         }
 
         Collections.shuffle(openRequests, random);
-        int numToRemoved = (int) (openRequests.size() * PROPORTION_TO_REMOVE) + 1;
+        int numToRemoved = (int) (openRequests.size() * proportion_to_remove) + 1;
         int maxRemoval = 1000;
         numToRemoved = Math.min(numToRemoved, maxRemoval);
         numToRemoved = Math.min(numToRemoved, openRequests.size());

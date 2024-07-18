@@ -44,16 +44,18 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
     @CommandLine.Option(names = "--prebooked-solver", defaultValue = "SEQ_INSERTION", description = "Prebooked trips solver")
     private OnlineAndOfflineDrtOperationModule.OfflineSolverType offlineSolver;
 
-    @CommandLine.Option(names = "--initialThreshold", description = "number of iterations for iterative offline solver", defaultValue = "0.5")
+    @CommandLine.Option(names = "--initialThreshold", description = "initialThreshold of SimpleAnnealingThresholdAcceptor", defaultValue = "0.5")
     private double initialThreshold;
 
-    @CommandLine.Option(names = "--halfLife", description = "number of iterations for iterative offline solver", defaultValue = "0.1")
+    @CommandLine.Option(names = "--halfLife", description = "halfLife of SimpleAnnealingThresholdAcceptor", defaultValue = "0.1")
     private double halfLife;
 
     @CommandLine.Option(names = "--iterations", description = "number of iterations for iterative offline solver", defaultValue = "0")
     private int iterations;
-    @CommandLine.Option(names = "--probability", description = "number of iterations for iterative offline solver", defaultValue = "0.2")
+    @CommandLine.Option(names = "--probability", description = "probability of solutions to be accepted", defaultValue = "0.2")
     private double probability;
+    @CommandLine.Option(names = "--proportion_to_remove", description = "proportion of jobs to be removed", defaultValue = "0.3")
+    private double proportion_to_remove;
 
     @CommandLine.Option(names = "--seed", description = "random seed", defaultValue = "0")
     private int seed;
@@ -83,7 +85,7 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
         // Install the new DRT optimizer and the linear stop duration
         for (DrtConfigGroup drtCfg : multiModeDrtConfig.getModalElements()) {
             controler.addOverridingQSimModule(new OnlineAndOfflineDrtOperationModule(prebookedPlans, drtCfg,
-                    horizon, interval, iterations, false, seed, offlineSolver,initialThreshold,halfLife,probability));
+                    horizon, interval, iterations, false, seed, offlineSolver,initialThreshold,halfLife,probability,proportion_to_remove));
             controler.addOverridingModule(new LinearStopDurationModule(drtCfg));
             // If we are doing fully offline optimization, then no need to generate the standard travel time matrix
             if (prebookedPlansFile.equals("all")) {
