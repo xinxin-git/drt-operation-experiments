@@ -44,7 +44,7 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
     @CommandLine.Option(names = "--prebooked-solver", defaultValue = "SEQ_INSERTION", description = "Prebooked trips solver")
     private OnlineAndOfflineDrtOperationModule.OfflineSolverType offlineSolver;
 
-    @CommandLine.Option(names = "--initialThreshold", description = "initialThreshold of SimpleAnnealingThresholdAcceptor", defaultValue = "0.5")
+    @CommandLine.Option(names = "--initialThreshold", description = "initialThreshold of SimpleAnnealingThresholdAcceptor", defaultValue = "0.05")
     private double initialThreshold;
 
     @CommandLine.Option(names = "--halfLife", description = "halfLife of SimpleAnnealingThresholdAcceptor", defaultValue = "0.1")
@@ -52,9 +52,9 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
 
     @CommandLine.Option(names = "--iterations", description = "number of iterations for iterative offline solver", defaultValue = "0")
     private int iterations;
-    @CommandLine.Option(names = "--probability", description = "probability of solutions to be accepted", defaultValue = "0.2")
+    @CommandLine.Option(names = "--probability", description = "probability of solutions to be accepted for simulatedAnnealingAcceptor", defaultValue = "0.2")
     private double probability;
-    @CommandLine.Option(names = "--proportion_to_remove", description = "proportion of jobs to be removed", defaultValue = "0.3")
+    @CommandLine.Option(names = "--proportion_to_remove", description = "proportion of jobs to be removed", defaultValue = "0.2")
     private double proportion_to_remove;
 
     @CommandLine.Option(names = "--seed", description = "random seed", defaultValue = "0")

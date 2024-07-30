@@ -4,15 +4,33 @@ import org.matsim.drtExperiments.basicStructures.FleetSchedules;
 import org.matsim.drtExperiments.basicStructures.GeneralRequest;
 import org.matsim.drtExperiments.basicStructures.TimetableEntry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
-public class RandomRuinSelector implements RuinSelector {
+/**
+ * random ruin strategy heuristic from Jsprit, the number to removed is not determined *
+ */
+public class RandomRuinSelectorJspit implements RuinSelector{
     private final Random random;
-    private final double proportion_to_remove;
+    private final double max_proportion_to_remove;
+    private final double min_proportion_to_remove;
+    private double proportion_to_remove;
 
-    public RandomRuinSelector(Random random,double proportion_to_remove) {
+    public RandomRuinSelectorJspit(Random random,double max_proportion_to_remove,double min_proportion_to_remove){
         this.random = random;
-        this.proportion_to_remove  = proportion_to_remove;
+        if (max_proportion_to_remove < min_proportion_to_remove) {
+            throw new IllegalArgumentException("maxProportionToRemove must be greater than or equal to minProportionToRemove");
+        }
+        this.max_proportion_to_remove = max_proportion_to_remove;
+        this.min_proportion_to_remove = min_proportion_to_remove;
+
+    }
+    private double CalcuProportionToRemove(){
+        double proportion = min_proportion_to_remove + (max_proportion_to_remove - min_proportion_to_remove) * random.nextDouble();
+        proportion_to_remove = proportion;
+        return proportion;
     }
 
     @Override
@@ -23,7 +41,7 @@ public class RandomRuinSelector implements RuinSelector {
         }
 
         Collections.shuffle(openRequests, random);
-        int numToRemoved = (int) (openRequests.size() * proportion_to_remove) + 1;
+        int numToRemoved = (int) (openRequests.size() * CalcuProportionToRemove()) + 1;
         int maxRemoval = 1000;
         numToRemoved = Math.min(numToRemoved, maxRemoval);
         numToRemoved = Math.min(numToRemoved, openRequests.size());
@@ -38,4 +56,5 @@ public class RandomRuinSelector implements RuinSelector {
     public double getParameter() {
         return proportion_to_remove;
     }
+
 }

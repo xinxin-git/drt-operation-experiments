@@ -44,7 +44,8 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
 
         // selectors
         //RuinSelector ruinSelector = new RandomRuinSelector(random,proportion_to_remove);
-        RuinSelector ruinSelector = new RadialRuinSelector(random,proportion_to_remove,network);
+        //RandomRuinSelectorJspit ruinSelector = new RandomRuinSelectorJspit(random,0.3,0.2);
+        RuinSelector ruinSelector = new SimpleRadialRuinSelector(random,proportion_to_remove,network);
         SolutionCostCalculator solutionCostCalculator = new DefaultSolutionCostCalculator();
 
         // Prepare link to link travel time matrix for relevant links
@@ -101,18 +102,23 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
                 if (newScore < currentBestScore) {
                     currentBestScore = newScore;
                     currentBestSolution = newSolution;
+                    log.info("Ruin and Recreate iterations #" + i + " get better score = " + currentBestScore);
                 }
             }
 
             if (i % displayCounter == 0) {
                 log.info("Ruin and Recreate iterations #" + i + ": new score = " + newScore + ", " +
                         "accepted = " + solutionAcceptor.acceptSolutionOrNot(newScore, currentScore, i, maxIterations) +
-                        ", acceptedProbability = " + solutionAcceptor.getParameter() +
+                        ", proportion_to_remove = " + ruinSelector.getParameter() +
                         ", current best score = " + currentBestScore);
                 displayCounter *= 2;
             }
 
+            // output the number of iterations of the best solution
+
+
         }
+
         log.info(maxIterations + " ruin and Recreate iterations complete!");
 
         return currentBestSolution;

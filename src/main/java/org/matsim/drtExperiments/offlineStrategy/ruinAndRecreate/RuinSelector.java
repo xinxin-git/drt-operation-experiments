@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface RuinSelector {
     List<GeneralRequest> selectRequestsToBeRuined(FleetSchedules fleetSchedules);
+    double getParameter();
 }
