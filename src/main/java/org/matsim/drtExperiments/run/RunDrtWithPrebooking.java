@@ -57,6 +57,9 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
     @CommandLine.Option(names = "--proportion_to_remove", description = "proportion of jobs to be removed", defaultValue = "0.2")
     private double proportion_to_remove;
 
+    @CommandLine.Option(names = "--radius", description = "radius of jobs to be removed", defaultValue = "1000.0")
+    private double radius;
+
     @CommandLine.Option(names = "--seed", description = "random seed", defaultValue = "0")
     private int seed;
 
@@ -85,7 +88,7 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
         // Install the new DRT optimizer and the linear stop duration
         for (DrtConfigGroup drtCfg : multiModeDrtConfig.getModalElements()) {
             controler.addOverridingQSimModule(new OnlineAndOfflineDrtOperationModule(prebookedPlans, drtCfg,
-                    horizon, interval, iterations, false, seed, offlineSolver,initialThreshold,halfLife,probability,proportion_to_remove));
+                    horizon, interval, iterations, false, seed, offlineSolver,initialThreshold,halfLife,probability,proportion_to_remove,radius));
             controler.addOverridingModule(new LinearStopDurationModule(drtCfg));
             // If we are doing fully offline optimization, then no need to generate the standard travel time matrix
             if (prebookedPlansFile.equals("all")) {

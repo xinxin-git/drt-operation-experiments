@@ -8,21 +8,23 @@ import org.matsim.drtExperiments.basicStructures.FleetSchedules;
 import org.matsim.drtExperiments.basicStructures.GeneralRequest;
 import org.matsim.drtExperiments.basicStructures.TimetableEntry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-public class MultiRadialRuinSelector implements RuinSelector{
+/**
+ * select multiple center points, each of which ruin at a certain radius until the numToRemoved is reached *
+ */
+
+public class MultiRadialRuinSelector implements RuinSelector {
     private final Random random;
     private final double proportion_to_remove;
-
     private final Network network;
-    private final double radial;
-    public MultiRadialRuinSelector(Random random, double proportion_to_remove, Network  network, double radial){
+    private final double radius;
+
+    public MultiRadialRuinSelector(Random random, double proportion_to_remove, Network network, double radius) {
         this.random = random;
-        this.proportion_to_remove  = proportion_to_remove;
+        this.proportion_to_remove = proportion_to_remove;
         this.network = network;
-        this.radial = radial;
+        this.radius = radius;
     }
 
     @Override
@@ -31,26 +33,27 @@ public class MultiRadialRuinSelector implements RuinSelector{
         for (List<TimetableEntry> timetable : fleetSchedules.vehicleToTimetableMap().values()) {
             timetable.stream().filter(s -> s.getStopType() == TimetableEntry.StopType.PICKUP).forEach(s -> openRequests.add(s.getRequest()));
         }
-        //
-        List<GeneralRequest> requestsToBeRuined = new ArrayList<>();
-        while (requestsToBeRuined.size() < openRequests.size() * proportion_to_remove){
+        // as a set to avoid the same request being added repeatedly, otherwise error: Vehicle ID is null for some passengers
+        Set<GeneralRequest> requestsToBeRuined = new HashSet<>();
+        while (requestsToBeRuined.size() < openRequests.size() * proportion_to_remove) {
             Id<Link> randomChosenLinkId = openRequests.get(random.nextInt(openRequests.size())).getFromLinkId();
             for (GeneralRequest openRequest : openRequests) {
-                if (getDistance(randomChosenLinkId,openRequest.getFromLinkId()) <= radial){
-                    if (requestsToBeRuined.size()  >= openRequests.size() * proportion_to_remove){
-                        return requestsToBeRuined;
+                if (getDistance(randomChosenLinkId, openRequest.getFromLinkId()) <= radius) {
+                    if (requestsToBeRuined.size() >= openRequests.size() * proportion_to_remove) {
+                        return requestsToBeRuined.stream().toList();
                     }
                     requestsToBeRuined.add(openRequest);
                 }
             }
         }
-        return requestsToBeRuined;
+        return requestsToBeRuined.stream().toList();
     }
 
     @Override
     public double getParameter() {
-        return radial;
+        return radius;
     }
+
     private double getDistance(Id<Link> randomChosenLinkId, Id<Link> generalRequestLinkId) {
         Coord centerCoordinate = network.getLinks().get(randomChosenLinkId).getToNode().getCoord();
         Coord coordinate = network.getLinks().get(generalRequestLinkId).getToNode().getCoord();

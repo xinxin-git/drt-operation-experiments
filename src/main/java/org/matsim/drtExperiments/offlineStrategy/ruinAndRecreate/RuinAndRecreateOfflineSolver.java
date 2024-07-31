@@ -20,7 +20,7 @@ import java.util.*;
 public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, TravelTime travelTime,
                                            DrtConfigGroup drtConfigGroup, Random random,
                                            double initialThreshold, double halfLife, double probability,
-                                           double proportion_to_remove) implements OfflineSolver {
+                                           double proportion_to_remove,double radius) implements OfflineSolver {
     private static final Logger log = LogManager.getLogger(RuinAndRecreateOfflineSolver.class);
 
     @Override
@@ -45,7 +45,8 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
         // selectors
         //RuinSelector ruinSelector = new RandomRuinSelector(random,proportion_to_remove);
         //RandomRuinSelectorJspit ruinSelector = new RandomRuinSelectorJspit(random,0.3,0.2);
-        RuinSelector ruinSelector = new SimpleRadialRuinSelector(random,proportion_to_remove,network);
+        //RuinSelector ruinSelector = new SimpleRadialRuinSelector(random,proportion_to_remove,network);
+        RuinSelector ruinSelector = new MultiRadialRuinSelector(random,proportion_to_remove,network,radius);
         SolutionCostCalculator solutionCostCalculator = new DefaultSolutionCostCalculator();
 
         // Prepare link to link travel time matrix for relevant links
@@ -109,7 +110,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
             if (i % displayCounter == 0) {
                 log.info("Ruin and Recreate iterations #" + i + ": new score = " + newScore + ", " +
                         "accepted = " + solutionAcceptor.acceptSolutionOrNot(newScore, currentScore, i, maxIterations) +
-                        ", proportion_to_remove = " + ruinSelector.getParameter() +
+                        ", radius = " + ruinSelector.getParameter() +
                         ", current best score = " + currentBestScore);
                 displayCounter *= 2;
             }
