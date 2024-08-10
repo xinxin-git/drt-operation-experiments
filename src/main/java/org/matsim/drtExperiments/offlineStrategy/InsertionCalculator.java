@@ -174,7 +174,6 @@ public record InsertionCalculator(Network network, double stopDuration,
                                           FleetSchedules previousSchedule) {
         Id<DvrpVehicle> vehicleId = previousSchedule.requestIdToVehicleMap().get(requestToRemove.getPassengerId());
         List<TimetableEntry> timetable = previousSchedule.vehicleToTimetableMap().get(vehicleId);
-
         // remove the request from the timetable
         // First identify the pick-up and drop-off index of the request, and update the occupancy of those impacted stops
         int pickUpIdx = timetable.size();

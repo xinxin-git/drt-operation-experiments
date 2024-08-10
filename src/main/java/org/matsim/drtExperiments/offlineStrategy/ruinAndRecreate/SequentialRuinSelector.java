@@ -4,9 +4,8 @@ import org.matsim.drtExperiments.basicStructures.FleetSchedules;
 import org.matsim.drtExperiments.basicStructures.GeneralRequest;
 import org.matsim.drtExperiments.basicStructures.TimetableEntry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+
 /**
  * remove requests from the randomly selected round trip *
  */
@@ -26,9 +25,9 @@ public class SequentialRuinSelector implements RuinSelector{
         for (List<TimetableEntry> timetable : fleetSchedules.vehicleToTimetableMap().values()) {
             timetable.stream().filter(s -> s.getStopType() == TimetableEntry.StopType.PICKUP).forEach(s -> openRequests.add(s.getRequest()));
         }
-        // TODO ist  this alltrips right?
+        // TODO is this allTrips right?
         List<List<TimetableEntry>> allTrips = new ArrayList<>(fleetSchedules.vehicleToTimetableMap().values());
-        List<GeneralRequest> requestsToBeRuined = new ArrayList<>();
+        Set<GeneralRequest> requestsToBeRuined = new HashSet<>();
 
         int numToRemoved = (int) (openRequests.size() * proportion_to_remove) + 1;
         int maxRemoval = 1000;
@@ -39,12 +38,12 @@ public class SequentialRuinSelector implements RuinSelector{
             List<TimetableEntry> selectedTrip = allTrips.get(random.nextInt(allTrips.size()));
             for (GeneralRequest openRequest : getRequestsFromTrip(selectedTrip)){
                 if (requestsToBeRuined.size()  >= numToRemoved){
-                    return requestsToBeRuined;
+                    return requestsToBeRuined.stream().toList();
                 }
                 requestsToBeRuined.add(openRequest);
             }
         }
-        return requestsToBeRuined;
+        return requestsToBeRuined.stream().toList();
     }
 
     @Override

@@ -33,13 +33,19 @@ public class MultiRadialRuinSelector implements RuinSelector {
         for (List<TimetableEntry> timetable : fleetSchedules.vehicleToTimetableMap().values()) {
             timetable.stream().filter(s -> s.getStopType() == TimetableEntry.StopType.PICKUP).forEach(s -> openRequests.add(s.getRequest()));
         }
-        // as a set to avoid the same request being added repeatedly, otherwise error: Vehicle ID is null for some passengers
+        // requestsToBeRuined as a set to avoid the same request being added repeatedly, otherwise get an error: Vehicle ID is null for some passengers
         Set<GeneralRequest> requestsToBeRuined = new HashSet<>();
-        while (requestsToBeRuined.size() < openRequests.size() * proportion_to_remove) {
+
+        int numToRemoved = (int) (openRequests.size() * proportion_to_remove) + 1;
+        int maxRemoval = 1000;
+        numToRemoved = Math.min(numToRemoved, maxRemoval);
+        numToRemoved = Math.min(numToRemoved, openRequests.size());
+
+        while (requestsToBeRuined.size() < numToRemoved) {
             Id<Link> randomChosenLinkId = openRequests.get(random.nextInt(openRequests.size())).getFromLinkId();
             for (GeneralRequest openRequest : openRequests) {
                 if (getDistance(randomChosenLinkId, openRequest.getFromLinkId()) <= radius) {
-                    if (requestsToBeRuined.size() >= openRequests.size() * proportion_to_remove) {
+                    if (requestsToBeRuined.size() >= numToRemoved) {
                         return requestsToBeRuined.stream().toList();
                     }
                     requestsToBeRuined.add(openRequest);

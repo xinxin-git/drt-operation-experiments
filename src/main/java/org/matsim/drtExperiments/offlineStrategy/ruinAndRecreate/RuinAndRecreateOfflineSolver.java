@@ -46,7 +46,9 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
         //RuinSelector ruinSelector = new RandomRuinSelector(random,proportion_to_remove);
         //RandomRuinSelectorJspit ruinSelector = new RandomRuinSelectorJspit(random,0.3,0.2);
         //RuinSelector ruinSelector = new SimpleRadialRuinSelector(random,proportion_to_remove,network);
-        RuinSelector ruinSelector = new MultiRadialRuinSelector(random,proportion_to_remove,network,radius);
+        //RuinSelector ruinSelector = new MultiRadialRuinSelector(random,proportion_to_remove,network,radius);
+        //RuinSelector ruinSelector = new SequentialRuinSelector(random,proportion_to_remove);
+
         SolutionCostCalculator solutionCostCalculator = new DefaultSolutionCostCalculator();
 
         // Prepare link to link travel time matrix for relevant links
@@ -58,7 +60,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
 
         // Create insertion calculator
         InsertionCalculator insertionCalculator = new InsertionCalculator(network, drtConfigGroup.stopDuration, linkToLinkTravelTimeMatrix);
-
+        RuinSelector ruinSelector = new MaxCostRuinSelector(proportion_to_remove,onlineVehicleInfoMap,insertionCalculator);
         // Initialize regret inserter
         OfflineSolverRegretHeuristic regretInserter = new OfflineSolverRegretHeuristic(network, travelTime, drtConfigGroup);
 
