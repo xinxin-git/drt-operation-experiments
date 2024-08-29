@@ -25,8 +25,8 @@ public class SequentialRuinSelector implements RuinSelector{
         for (List<TimetableEntry> timetable : fleetSchedules.vehicleToTimetableMap().values()) {
             timetable.stream().filter(s -> s.getStopType() == TimetableEntry.StopType.PICKUP).forEach(s -> openRequests.add(s.getRequest()));
         }
-        // TODO is this allTrips right?
-        List<List<TimetableEntry>> allTrips = new ArrayList<>(fleetSchedules.vehicleToTimetableMap().values());
+
+        List<List<TimetableEntry>> allTours = new ArrayList<>(fleetSchedules.vehicleToTimetableMap().values());
         Set<GeneralRequest> requestsToBeRuined = new HashSet<>();
 
         int numToRemoved = (int) (openRequests.size() * proportion_to_remove) + 1;
@@ -35,10 +35,10 @@ public class SequentialRuinSelector implements RuinSelector{
         numToRemoved = Math.min(numToRemoved, openRequests.size());
 
         while (requestsToBeRuined.size() < numToRemoved){
-            List<TimetableEntry> selectedTrip = allTrips.get(random.nextInt(allTrips.size()));
+            List<TimetableEntry> selectedTrip = allTours.get(random.nextInt(allTours.size()));
             for (GeneralRequest openRequest : getRequestsFromTrip(selectedTrip)){
                 if (requestsToBeRuined.size()  >= numToRemoved){
-                    return requestsToBeRuined.stream().toList();
+                    break;
                 }
                 requestsToBeRuined.add(openRequest);
             }
@@ -53,7 +53,8 @@ public class SequentialRuinSelector implements RuinSelector{
 
     public List<GeneralRequest> getRequestsFromTrip(List<TimetableEntry> trip) {
         return trip.stream()
-                .map(TimetableEntry::getRequest) // Extract the GeneralRequest from each TimetableEntry
+                .filter(s -> s.getStopType() == TimetableEntry.StopType.PICKUP)
+                .map(TimetableEntry::getRequest)
                 .toList();
     }
 

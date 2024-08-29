@@ -46,7 +46,7 @@ public class MultiRadialRuinSelector implements RuinSelector {
             for (GeneralRequest openRequest : openRequests) {
                 if (getDistance(randomChosenLinkId, openRequest.getFromLinkId()) <= radius) {
                     if (requestsToBeRuined.size() >= numToRemoved) {
-                        return requestsToBeRuined.stream().toList();
+                        break;
                     }
                     requestsToBeRuined.add(openRequest);
                 }
