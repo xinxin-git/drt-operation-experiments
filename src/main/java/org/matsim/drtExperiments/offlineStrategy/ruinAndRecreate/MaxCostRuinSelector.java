@@ -28,7 +28,7 @@ public class MaxCostRuinSelector implements RuinSelector {
 
     @Override
     public List<GeneralRequest> selectRequestsToBeRuined(FleetSchedules fleetSchedules) {
-        Map<GeneralRequest, Double> request2TravelTimeMap = new HashMap<>();
+        Map<GeneralRequest, Double> request2TravelTimeMap = new LinkedHashMap<>();
         List<List<TimetableEntry>> allTours = new ArrayList<>(fleetSchedules.vehicleToTimetableMap().values());
 
         for (List<TimetableEntry> tour : allTours){

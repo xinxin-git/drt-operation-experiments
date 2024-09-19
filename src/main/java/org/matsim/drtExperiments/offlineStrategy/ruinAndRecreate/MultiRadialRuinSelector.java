@@ -34,7 +34,7 @@ public class MultiRadialRuinSelector implements RuinSelector {
             timetable.stream().filter(s -> s.getStopType() == TimetableEntry.StopType.PICKUP).forEach(s -> openRequests.add(s.getRequest()));
         }
         // requestsToBeRuined as a set to avoid the same request being added repeatedly, otherwise get an error: Vehicle ID is null for some passengers
-        Set<GeneralRequest> requestsToBeRuined = new HashSet<>();
+        Set<GeneralRequest> requestsToBeRuined = new LinkedHashSet<>();
 
         int numToRemoved = (int) (openRequests.size() * proportion_to_remove) + 1;
         int maxRemoval = 1000;

@@ -27,7 +27,7 @@ public class SequentialRuinSelector implements RuinSelector{
         }
 
         List<List<TimetableEntry>> allTours = new ArrayList<>(fleetSchedules.vehicleToTimetableMap().values());
-        Set<GeneralRequest> requestsToBeRuined = new HashSet<>();
+        Set<GeneralRequest> requestsToBeRuined = new LinkedHashSet<>();
 
         int numToRemoved = (int) (openRequests.size() * proportion_to_remove) + 1;
         int maxRemoval = 1000;

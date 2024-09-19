@@ -57,7 +57,7 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
     @CommandLine.Option(names = "--proportion_to_remove", description = "proportion of jobs to be removed", defaultValue = "0.2")
     private double proportion_to_remove;
 
-    @CommandLine.Option(names = "--radius", description = "radius of jobs to be removed", defaultValue = "1000.0")
+    @CommandLine.Option(names = "--radius", description = "radius of jobs to be removed", defaultValue = "50.0")
     private double radius;
 
     @CommandLine.Option(names = "--seed", description = "random seed", defaultValue = "0")
