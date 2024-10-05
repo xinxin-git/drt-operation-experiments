@@ -32,6 +32,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
             previousSchedules = FleetSchedules.initializeFleetSchedules(onlineVehicleInfoMap);
         }
 
+
         // If there is no new request, simply keep the schedules unchanged
         if (newRequests.isEmpty()) {
             return previousSchedules;
@@ -43,19 +44,23 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
         //RecreateSolutionAcceptor solutionAcceptor = new SimulatedAnnealingAcceptor(probability,random);
 
         // selectors
-        //RuinSelector ruinSelector = new RandomRuinSelector(random,proportion_to_remove);
+        RuinSelector ruinSelector = new RandomRuinSelector(random,proportion_to_remove);
         //RandomRuinSelectorJspit ruinSelector = new RandomRuinSelectorJspit(random,0.3,0.2);
         //RuinSelector ruinSelector = new SimpleRadialRuinSelector(random,proportion_to_remove,network);
         //RuinSelector ruinSelector = new MultiRadialRuinSelector(random,proportion_to_remove,network,radius);
-        RuinSelector ruinSelector = new SequentialRuinSelector(random,proportion_to_remove);
+        //RuinSelector ruinSelector = new SequentialRuinSelector(random,proportion_to_remove);
 
-        SolutionCostCalculator solutionCostCalculator = new DefaultSolutionCostCalculator();
+        //SolutionCostCalculator solutionCostCalculator = new DefaultSolutionCostCalculator();
+        //SolutionCostCalculator solutionCostCalculator = new TotalRidingTimeCostCalculator();
+
 
         // Prepare link to link travel time matrix for relevant links
         LinkToLinkTravelTimeMatrix linkToLinkTravelTimeMatrix = LinkToLinkTravelTimeMatrix.
                 prepareLinkToLinkTravelMatrix(network, travelTime, previousSchedules, onlineVehicleInfoMap, newRequests, time);
 
         //RuinSelector ruinSelector = new MaxCostRuinSelector(proportion_to_remove,onlineVehicleInfoMap,network,linkToLinkTravelTimeMatrix);
+
+        SolutionCostCalculator solutionCostCalculator = new TotalDelayCostCalculator(network,linkToLinkTravelTimeMatrix);
 
         // update schedules based on the latest travel time estimation and current locations
         previousSchedules.updateFleetSchedule(network, linkToLinkTravelTimeMatrix, onlineVehicleInfoMap);
@@ -106,7 +111,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
                 if (newScore < currentBestScore) {
                     currentBestScore = newScore;
                     currentBestSolution = newSolution;
-                    log.info("Ruin and Recreate iterations #" + i + " get better score = " + currentBestScore);
+                    //log.info("Ruin and Recreate iterations #" + i + " get better score = " + currentBestScore);
                 }
             }
 
@@ -117,7 +122,6 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
                 displayCounter *= 2;
             }
         }
-
         log.info(maxIterations + " ruin and Recreate iterations complete!");
 
         return currentBestSolution;

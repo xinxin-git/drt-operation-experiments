@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 public class MaxCostRuinSelector implements RuinSelector {
     private final double proportion_to_remove;
-    Map<Id<DvrpVehicle>, OnlineVehicleInfo> onlineVehicleInfoMap;
+    private final Map<Id<DvrpVehicle>, OnlineVehicleInfo> onlineVehicleInfoMap;
     private final Network network;
-    LinkToLinkTravelTimeMatrix linkToLinkTravelTimeMatrix;
+    private final LinkToLinkTravelTimeMatrix linkToLinkTravelTimeMatrix;
 
     public MaxCostRuinSelector(double proportionToRemove, Map<Id<DvrpVehicle>, OnlineVehicleInfo> onlineVehicleInfoMap, Network network, LinkToLinkTravelTimeMatrix linkToLinkTravelTimeMatrix) {
         this.proportion_to_remove = proportionToRemove;
