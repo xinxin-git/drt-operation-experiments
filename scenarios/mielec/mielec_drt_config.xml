@@ -16,7 +16,7 @@
 			<param name="maxTravelTimeAlpha" value="2.0"/>
 			<param name="maxTravelTimeBeta" value="900"/>
 			<!-- <param name="vehiclesFile" value="./vehicles/10-8_seater-drt-vehicles.xml"/> -->
-			<param name="vehiclesFile" value="./vehicles/20-8_seater-drt-vehicles.xml"/>
+			<param name="vehiclesFile" value="./vehicles/13-8_seater-drt-vehicles.xml"/>
 			<parameterset type="zonalSystem">
 				<param name="zonesGeneration" value="GridFromNetwork"/>
 				<param name="cellSize" value="500"/>

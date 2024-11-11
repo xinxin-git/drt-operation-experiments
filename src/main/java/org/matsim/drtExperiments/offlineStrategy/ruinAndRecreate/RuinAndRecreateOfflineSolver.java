@@ -20,7 +20,8 @@ import java.util.*;
 public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, TravelTime travelTime,
                                            DrtConfigGroup drtConfigGroup, Random random,
                                            double initialThreshold, double halfLife, double probability,
-                                           double proportion_to_remove,double radius) implements OfflineSolver {
+                                           double proportion_to_remove,double radius,
+                                           double totalDrivingTimeShare, double totalRidingTimeShare, double totalDelayShare) implements OfflineSolver {
     private static final Logger log = LogManager.getLogger(RuinAndRecreateOfflineSolver.class);
 
     @Override
@@ -60,7 +61,8 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
 
         //RuinSelector ruinSelector = new MaxCostRuinSelector(proportion_to_remove,onlineVehicleInfoMap,network,linkToLinkTravelTimeMatrix);
 
-        SolutionCostCalculator solutionCostCalculator = new TotalDelayCostCalculator(network,linkToLinkTravelTimeMatrix);
+        SolutionCostCalculator solutionCostCalculator = new TotalDelayCostCalculator(network);
+        //SolutionCostCalculator solutionCostCalculator = new CompositeCostCalculator(network,linkToLinkTravelTimeMatrix, totalDrivingTimeShare, totalRidingTimeShare, totalDelayShare);
 
         // update schedules based on the latest travel time estimation and current locations
         previousSchedules.updateFleetSchedule(network, linkToLinkTravelTimeMatrix, onlineVehicleInfoMap);
@@ -111,7 +113,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
                 if (newScore < currentBestScore) {
                     currentBestScore = newScore;
                     currentBestSolution = newSolution;
-                    //log.info("Ruin and Recreate iterations #" + i + " get better score = " + currentBestScore);
+                    log.info("iteration = " + i + " get better solution = " + newScore);
                 }
             }
 

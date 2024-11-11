@@ -63,6 +63,13 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
     @CommandLine.Option(names = "--seed", description = "random seed", defaultValue = "0")
     private int seed;
 
+    @CommandLine.Option(names = "--totalDrivingTimeShare", description = "totalDrivingTimeShare of allCostCalculator", defaultValue = "0.5")
+    private double totalDrivingTimeShare;
+    @CommandLine.Option(names = "--totalRidingTimeShare", description = "totalRidingTimeShare of allCostCalculator", defaultValue = "0.3")
+    private double totalRidingTimeShare;
+    @CommandLine.Option(names = "--totalDelayShare", description = "totalDelayShare of allCostCalculator", defaultValue = "0.2")
+    private double totalDelayShare;
+
     public static void main(String[] args) {
         new RunDrtWithPrebooking().execute(args);
     }
@@ -88,7 +95,9 @@ public class RunDrtWithPrebooking implements MATSimAppCommand {
         // Install the new DRT optimizer and the linear stop duration
         for (DrtConfigGroup drtCfg : multiModeDrtConfig.getModalElements()) {
             controler.addOverridingQSimModule(new OnlineAndOfflineDrtOperationModule(prebookedPlans, drtCfg,
-                    horizon, interval, iterations, false, seed, offlineSolver,initialThreshold,halfLife,probability,proportion_to_remove,radius));
+                    horizon, interval, iterations, false, seed, offlineSolver,
+                    initialThreshold,halfLife,probability,proportion_to_remove,radius,
+                    totalDrivingTimeShare,totalRidingTimeShare,totalDelayShare));
             controler.addOverridingModule(new LinearStopDurationModule(drtCfg));
             // If we are doing fully offline optimization, then no need to generate the standard travel time matrix
             if (prebookedPlansFile.equals("all")) {

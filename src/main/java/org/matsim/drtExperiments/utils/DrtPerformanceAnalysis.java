@@ -22,30 +22,36 @@ import org.matsim.core.router.util.LeastCostPathCalculator;
 import org.matsim.core.router.util.TravelDisutility;
 import org.matsim.core.router.util.TravelTime;
 
+
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class DrtPerformanceAnalysis {
     private static final Logger log = LogManager.getLogger(DrtPerformanceAnalysis.class);
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws IOException {
         //customer performance
         String networkFile = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/network.xml";
-        String customerInputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/composite_fleet13/0.5_0.3_0.2/it10000/output_drt_legs_drt.csv";
-        String vehicleInputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/composite_fleet13/0.5_0.3_0.2/it10000/drt_vehicle_stats_drt.csv";
-        String outputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/composite_fleet13/0.5_0.3_0.2/it10000/drt_performance_analysis.csv";
+        String customerInputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/ridingTime_fleet13/it10000/output_drt_legs_drt.csv";
+        String vehicleInputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/ridingTime_fleet13/it10000/drt_vehicle_stats_drt.csv";
+        String outputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/ridingTime_fleet13/it10000/drt_performance_analysis.csv";
 
         Network network = NetworkUtils.readNetwork(networkFile);
         TravelTime travelTimes = new QSimFreeSpeedTravelTime(1);
         TravelDisutility travelCosts = new TimeAsTravelDisutility(travelTimes);
-        LeastCostPathCalculator router = new SpeedyALTFactory().createPathCalculator(network,travelCosts, travelTimes);
+        LeastCostPathCalculator router = new SpeedyALTFactory().createPathCalculator(network, travelCosts, travelTimes);
 
         double totalTravelTime = 0;
         double totalRidingTime = 0;
         double totalDelay = 0;
         int requestCount = 0;
+
+        List<List<Object>> updatedRecords = new ArrayList<>();
+
         try {
             FileReader customerFileReader = new FileReader(customerInputFilePath);
             CSVParser parser = CSVFormat.Builder.create()
@@ -58,7 +64,12 @@ public class DrtPerformanceAnalysis {
                     .setSkipHeaderRecord(true)
                     .build()
                     .parse(customerFileReader);
+
             List<CSVRecord> customerRecords = parser.getRecords();
+            List<String> headers = new ArrayList<>(parser.getHeaderNames());
+            headers.add("delay");
+            headers.add("travelDelay_share");
+
             for (CSVRecord record : customerRecords) {
                 double departureTime = Double.parseDouble(record.get("departureTime"));
                 double waitTime = Double.parseDouble(record.get("waitTime"));
@@ -70,6 +81,13 @@ public class DrtPerformanceAnalysis {
                 double directTravelTime = VrpPaths.calcAndCreatePath(fromLink, toLink, departureTime, router, travelTimes).getTravelTime();
                 double earliestArrivalTime = directTravelTime + departureTime;
                 double delay = arrivalTime - earliestArrivalTime;
+                double travelDelay_share = travelTime / directTravelTime;
+
+                List<Object> updatedRecord = new ArrayList<>();
+                record.forEach(updatedRecord::add);
+                updatedRecord.add(String.valueOf((int) Math.round(delay)));
+                updatedRecord.add(travelDelay_share);
+                updatedRecords.add(updatedRecord);
 
                 double ridingTime = travelTime - waitTime;
                 totalRidingTime += ridingTime;
@@ -77,6 +95,20 @@ public class DrtPerformanceAnalysis {
                 totalDelay += delay;
                 requestCount++;
             }
+
+            String outputFilePathWithDelay = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/ridingTime_fleet13/it10000/output_drt_legs_drt_withDelay.csv";
+            CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(outputFilePathWithDelay),
+                    CSVFormat.Builder.create()
+                            .setDelimiter(';')
+                            .setHeader(headers.toArray(new String[0]))
+                            .build());
+                for (List<Object> updatedRecord : updatedRecords) {
+                    csvPrinter.printRecord(updatedRecord);
+                }
+            log.info("output_drt_legs_drt_with_delay.csv file is updated");
+
+
+
             double travelTime_mean = totalTravelTime / requestCount;
             double ridingTime_mean = totalRidingTime / requestCount;
             double delay_mean = totalDelay / requestCount;
@@ -89,15 +121,15 @@ public class DrtPerformanceAnalysis {
             FileReader vehicleFileReader = new FileReader(vehicleInputFilePath);
             CSVParser vehicleParser = CSVFormat.Builder.create()
                     .setDelimiter(';')
-                    .setHeader("runId","iteration","vehicles","totalDistance","totalEmptyDistance",
-                            "emptyRatio","totalPassengerDistanceTraveled", "averageDrivenDistance",
-                            "averageEmptyDistance","averagePassengerDistanceTraveled","d_p/d_t",
-                            "l_det","minShareIdleVehicles", "minCountIdleVehicles")
+                    .setHeader("runId", "iteration", "vehicles", "totalDistance", "totalEmptyDistance",
+                            "emptyRatio", "totalPassengerDistanceTraveled", "averageDrivenDistance",
+                            "averageEmptyDistance", "averagePassengerDistanceTraveled", "d_p/d_t",
+                            "l_det", "minShareIdleVehicles", "minCountIdleVehicles")
                     .setSkipHeaderRecord(true)
                     .build()
                     .parse(vehicleFileReader);
             List<CSVRecord> vehicleRecords = vehicleParser.getRecords();
-            for (CSVRecord record : vehicleRecords){
+            for (CSVRecord record : vehicleRecords) {
                 vehicleTotalDistance = Double.parseDouble(record.get("totalDistance"));
             }
             double fuelCost = 0.08 * vehicleTotalDistance / 1000;
@@ -118,27 +150,29 @@ public class DrtPerformanceAnalysis {
         }
 
     }
-}
-  class VehicleDrivingTimeHandler implements VehicleEntersTrafficEventHandler, VehicleLeavesTrafficEventHandler {
-    private double totalDrivingTime;
 
-    @Override
-    public void reset(int iteration) {
-        totalDrivingTime = 0;
-    }
+    static class VehicleDrivingTimeHandler implements VehicleEntersTrafficEventHandler, VehicleLeavesTrafficEventHandler {
+        private double totalDrivingTime;
 
-    @Override
-    public void handleEvent(VehicleEntersTrafficEvent vehicleEntersTrafficEvent) {
-        double enterTime = vehicleEntersTrafficEvent.getTime();
-        totalDrivingTime -= enterTime;
-    }
+        @Override
+        public void reset(int iteration) {
+            totalDrivingTime = 0;
+        }
 
-    @Override
-    public void handleEvent(VehicleLeavesTrafficEvent vehicleLeavesTrafficEvent) {
-        double leavingTime = vehicleLeavesTrafficEvent.getTime();
-        totalDrivingTime += leavingTime;
-    }
-    public double getTotalDrivingTime() {
-        return totalDrivingTime;
+        @Override
+        public void handleEvent(VehicleEntersTrafficEvent vehicleEntersTrafficEvent) {
+            double enterTime = vehicleEntersTrafficEvent.getTime();
+            totalDrivingTime -= enterTime;
+        }
+
+        @Override
+        public void handleEvent(VehicleLeavesTrafficEvent vehicleLeavesTrafficEvent) {
+            double leavingTime = vehicleLeavesTrafficEvent.getTime();
+            totalDrivingTime += leavingTime;
+        }
+
+        public double getTotalDrivingTime() {
+            return totalDrivingTime;
+        }
     }
 }

@@ -1,5 +1,7 @@
 package org.matsim.drtExperiments.offlineStrategy.ruinAndRecreate;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.drtExperiments.basicStructures.FleetSchedules;
 import org.matsim.drtExperiments.basicStructures.TimetableEntry;
 

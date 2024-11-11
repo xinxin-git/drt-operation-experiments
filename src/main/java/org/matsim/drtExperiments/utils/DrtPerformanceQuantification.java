@@ -8,8 +8,7 @@ import org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler;
 import org.matsim.api.core.v01.events.handler.VehicleLeavesTrafficEventHandler;
 import org.matsim.contrib.drt.extension.preplanned.optimizer.WaitForStopTask;
 import org.matsim.contrib.drt.util.DrtEventsReaders;
-import org.matsim.contrib.dvrp.passenger.PassengerRequestRejectedEvent;
-import org.matsim.contrib.dvrp.passenger.PassengerRequestRejectedEventHandler;
+import org.matsim.contrib.dvrp.passenger.*;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.events.EventsUtils;
 import org.matsim.core.events.MatsimEventsReader;
@@ -24,6 +23,7 @@ import static org.matsim.application.ApplicationUtils.globFile;
 //TODO clean this script!!!
 public class DrtPerformanceQuantification {
     private final VehicleDrivingTimeStatistics vehicleDrivingTimeStatistics = new VehicleDrivingTimeStatistics();
+    private final PersonRidingTimeStatistic personRidingTimeStatistic = new PersonRidingTimeStatistic();
     private final RejectionStatistics rejectionStatistics = new RejectionStatistics();
     private String computationalTimeString = "unknown";
     private String iterationsString = "unknown";
@@ -35,10 +35,12 @@ public class DrtPerformanceQuantification {
      */
     private void analyze(String eventsFilePathString) {
         vehicleDrivingTimeStatistics.reset(0);
+        personRidingTimeStatistic.reset(0);
         rejectionStatistics.reset(0);
 
         EventsManager eventsManager = EventsUtils.createEventsManager();
         eventsManager.addHandler(vehicleDrivingTimeStatistics);
+        eventsManager.addHandler(personRidingTimeStatistic);
         eventsManager.addHandler(rejectionStatistics);
         MatsimEventsReader eventsReader = DrtEventsReaders.createEventsReader(eventsManager, WaitForStopTask.TYPE);
         eventsReader.readFile(eventsFilePathString);
@@ -49,6 +51,7 @@ public class DrtPerformanceQuantification {
      */
     public void analyze(Path outputDirectory, long computationalTime, String iterations) {
         vehicleDrivingTimeStatistics.reset(0);
+        personRidingTimeStatistic.reset(0);
         rejectionStatistics.reset(0);
 
         computationalTimeString = Long.toString(computationalTime);
@@ -56,6 +59,7 @@ public class DrtPerformanceQuantification {
         Path eventPath = globFile(outputDirectory, "*output_events.*");
         EventsManager eventsManager = EventsUtils.createEventsManager();
         eventsManager.addHandler(vehicleDrivingTimeStatistics);
+        eventsManager.addHandler(personRidingTimeStatistic);
         eventsManager.addHandler(rejectionStatistics);
         MatsimEventsReader eventsReader = DrtEventsReaders.createEventsReader(eventsManager, WaitForStopTask.TYPE);
         eventsReader.readFile(eventPath.toString());
@@ -66,6 +70,7 @@ public class DrtPerformanceQuantification {
      */
     public void analyzeRollingHorizon(Path outputDirectory, long computationalTime, String iterations, String horizon, String interval) {
         vehicleDrivingTimeStatistics.reset(0);
+        personRidingTimeStatistic.reset(0);
         rejectionStatistics.reset(0);
 
         computationalTimeString = Long.toString(computationalTime);
@@ -75,6 +80,7 @@ public class DrtPerformanceQuantification {
         Path eventPath = globFile(outputDirectory, "*output_events.*");
         EventsManager eventsManager = EventsUtils.createEventsManager();
         eventsManager.addHandler(vehicleDrivingTimeStatistics);
+        eventsManager.addHandler(personRidingTimeStatistic);
         eventsManager.addHandler(rejectionStatistics);
         MatsimEventsReader eventsReader = DrtEventsReaders.createEventsReader(eventsManager, WaitForStopTask.TYPE);
         eventsReader.readFile(eventPath.toString());
@@ -82,6 +88,9 @@ public class DrtPerformanceQuantification {
 
     public double getTotalDrivingTime() {
         return vehicleDrivingTimeStatistics.getTotalDrivingTime();
+    }
+    public double getTotalRidingTime(){
+        return personRidingTimeStatistic.getTotalRidingTime();
     }
 
     public int getRejections() {
@@ -110,14 +119,15 @@ public class DrtPerformanceQuantification {
     public void writeResultsRollingHorizon(Path outputDirectory) throws IOException {
         Path outputStatsPath = Path.of(outputDirectory + "/drt-result-quantification.tsv");
         CSVPrinter tsvWriter = new CSVPrinter(new FileWriter(outputStatsPath.toString()), CSVFormat.TDF);
-        List<String> titleRow = Arrays.asList("horizon", "interval", "iterations", "total_driving_time", "rejections", "computational_time");
+        List<String> titleRow = Arrays.asList("horizon", "interval", "iterations", "total_driving_time", "total_riding_time", "rejections", "computational_time");
         tsvWriter.printRecord(titleRow);
         tsvWriter.printRecord(Arrays.asList(horizonString, intervalString, iterationsString,
-                Double.toString(getTotalDrivingTime()), Long.toString(getRejections()), computationalTimeString));
+                Double.toString(getTotalDrivingTime()), Double.toString(getTotalRidingTime()), Long.toString(getRejections()), computationalTimeString));
         tsvWriter.close();
         System.out.println("Horizon = " + horizonString + ", Interval = " + intervalString + ", Iterations = " + iterationsString);
         System.out.println("Computational time = " + computationalTimeString);
         System.out.println("Total driving time = " + getTotalDrivingTime());
+        System.out.println("Total riding time = " + getTotalRidingTime());
         System.out.println("Number of rejections = " + getRejections());
     }
 
@@ -204,12 +214,31 @@ public class DrtPerformanceQuantification {
             double leavingTime = vehicleLeavesTrafficEvent.getTime();
             totalDrivingTime += leavingTime;
         }
-
         public double getTotalDrivingTime() {
             return totalDrivingTime;
         }
     }
-
+    static class PersonRidingTimeStatistic implements PassengerPickedUpEventHandler,
+            PassengerDroppedOffEventHandler {
+        private double totalRidingTime;
+        @Override
+        public void reset(int iteration) {
+            totalRidingTime = 0;
+        }
+        @Override
+        public void handleEvent(PassengerPickedUpEvent passengerPickedUpEvent) {
+            double enterTime = passengerPickedUpEvent.getTime();
+            totalRidingTime -= enterTime;
+        }
+        @Override
+        public void handleEvent(PassengerDroppedOffEvent passengerDroppedOffEvent) {
+            double leavingTime = passengerDroppedOffEvent.getTime();
+            totalRidingTime += leavingTime;
+        }
+        public double getTotalRidingTime() {
+            return totalRidingTime;
+        }
+    }
     static class RejectionStatistics implements PassengerRequestRejectedEventHandler {
         private int rejectedRequests = 0;
 
