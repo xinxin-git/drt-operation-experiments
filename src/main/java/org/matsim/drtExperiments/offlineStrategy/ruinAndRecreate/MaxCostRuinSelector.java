@@ -31,18 +31,18 @@ public class MaxCostRuinSelector implements RuinSelector {
         Map<GeneralRequest, Double> request2TravelTimeMap = new LinkedHashMap<>();
         List<List<TimetableEntry>> allTours = new ArrayList<>(fleetSchedules.vehicleToTimetableMap().values());
 
-        for (List<TimetableEntry> tour : allTours){
+        for (List<TimetableEntry> tour : allTours) {
             //find the vehicleId of this tour
-            Id<DvrpVehicle> vehicleId = getVehicleIdByTimetable(tour,fleetSchedules.vehicleToTimetableMap());
+            Id<DvrpVehicle> vehicleId = getVehicleIdByTimetable(tour, fleetSchedules.vehicleToTimetableMap());
             //calculate the total travel time of a tour
-            double totalTravelTimeOfATour = calculateTravelTime(tour,vehicleId);
-            for (GeneralRequest openRequest : getRequestsFromTour(tour)){
+            double totalTravelTimeOfATour = calculateTravelTime(tour, vehicleId);
+            for (GeneralRequest openRequest : getRequestsFromTour(tour)) {
                 List<TimetableEntry> copyTour = FleetSchedules.copyTimetable(tour);
                 //remove the request and calculate the new travel time
                 List<TimetableEntry> newTour = removeRequestFromTour(copyTour, openRequest);
-                double newTravelTime  = calculateTravelTime(newTour,vehicleId);
+                double newTravelTime = calculateTravelTime(newTour, vehicleId);
                 double travelTimeDifference = totalTravelTimeOfATour - newTravelTime;
-                request2TravelTimeMap.put(openRequest,travelTimeDifference);
+                request2TravelTimeMap.put(openRequest, travelTimeDifference);
             }
         }
         //sorted
@@ -85,10 +85,10 @@ public class MaxCostRuinSelector implements RuinSelector {
         Id<Link> firstStopLinkId = firstStop.getLinkId();
         Link fistStopLink = network.getLinks().get(firstStopLinkId);
 
-        totalTravelTime += linkToLinkTravelTimeMatrix.getTravelTime(currentLink,fistStopLink,currentTime);
+        totalTravelTime += linkToLinkTravelTimeMatrix.getTravelTime(currentLink, fistStopLink, currentTime);
 
         for (int i = 1; i < tour.size(); i++) {
-            TimetableEntry previousStop = tour.get(i-1);
+            TimetableEntry previousStop = tour.get(i - 1);
             Id<Link> previousStopLinkId = previousStop.getLinkId();
             Link previousStopLink = network.getLinks().get(previousStopLinkId);
 
@@ -96,7 +96,7 @@ public class MaxCostRuinSelector implements RuinSelector {
             Id<Link> currentStopLinkId = currentStop.getLinkId();
             Link currentStopLink = network.getLinks().get(currentStopLinkId);
 
-            totalTravelTime += linkToLinkTravelTimeMatrix.getTravelTime(previousStopLink,currentStopLink,currentTime);
+            totalTravelTime += linkToLinkTravelTimeMatrix.getTravelTime(previousStopLink, currentStopLink, currentTime);
         }
         return totalTravelTime;
     }

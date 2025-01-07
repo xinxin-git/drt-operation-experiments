@@ -19,16 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 public class TotalDelayCostCalculator implements SolutionCostCalculator {
-    //private static final Logger log = LogManager.getLogger(TotalDelayCostCalculator.class);
     private final Network network;
-
     private static final double REJECTION_COST = 1e6;
 
-
-    public TotalDelayCostCalculator(Network network){
+    public TotalDelayCostCalculator(Network network) {
         this.network = network;
     }
-
 
     @Override
     public double calculateSolutionCost(FleetSchedules fleetSchedules, double now) {
@@ -36,23 +32,21 @@ public class TotalDelayCostCalculator implements SolutionCostCalculator {
         Map<Id<Person>, Double> totalDelayMap = new LinkedHashMap<>();
         TravelTime travelTime = new QSimFreeSpeedTravelTime(1);
         TravelDisutility travelCosts = new TimeAsTravelDisutility(travelTime);
-        LeastCostPathCalculator router = new SpeedyALTFactory().createPathCalculator(network,travelCosts,travelTime);
+        LeastCostPathCalculator router = new SpeedyALTFactory().createPathCalculator(network, travelCosts, travelTime);
         // calculate delay of every request
         for (List<TimetableEntry> timetable : fleetSchedules.vehicleToTimetableMap().values()) {
             for (TimetableEntry stop : timetable) {
-                if (stop.getStopType() == TimetableEntry.StopType.DROP_OFF){
+                if (stop.getStopType() == TimetableEntry.StopType.DROP_OFF) {
                     Id<Person> passengerId = stop.getRequest().getPassengerId();
                     // calculate the earliest arrival time
-                    Id<Link> fromLinkId = stop.getRequest().getFromLinkId();
-                    Id<Link> toLinkId = stop.getRequest().getToLinkId();
-                    Link fromLink = network.getLinks().get(fromLinkId);
-                    Link toLink = network.getLinks().get(toLinkId);
-                    double earliestArrivalTime = VrpPaths.calcAndCreatePath(fromLink,toLink,stop.getRequest().getEarliestDepartureTime(),router,travelTime).getTravelTime() +
-                                                    stop.getRequest().getEarliestDepartureTime();
+                    Link fromLink = network.getLinks().get(stop.getRequest().getFromLinkId());
+                    Link toLink = network.getLinks().get(stop.getRequest().getToLinkId());
+                    double earliestArrivalTime = VrpPaths.calcAndCreatePath(fromLink, toLink, stop.getRequest().getEarliestDepartureTime(), router, travelTime).getTravelTime() +
+                            stop.getRequest().getEarliestDepartureTime();
                     // calculate delay
                     double actualArrivalTime = stop.getArrivalTime();
                     double delay = actualArrivalTime - earliestArrivalTime;
-                    totalDelayMap.put(passengerId,delay);
+                    totalDelayMap.put(passengerId, delay);
                 }
             }
         }

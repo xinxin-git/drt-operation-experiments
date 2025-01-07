@@ -35,10 +35,10 @@ public class DrtPerformanceAnalysis {
 
     public static void main(String[] args) throws IOException {
         //customer performance
-        String networkFile = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/network.xml";
-        String customerInputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/ridingTime_fleet13/it10000/output_drt_legs_drt.csv";
-        String vehicleInputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/ridingTime_fleet13/it10000/drt_vehicle_stats_drt.csv";
-        String outputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/ridingTime_fleet13/it10000/drt_performance_analysis.csv";
+        String networkFile = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/kelheim/kelheim-v3.0-drt-network.xml.gz";
+        String customerInputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/kelheim/output/delay/fleet35/it5000+0.2/output_drt_legs_drt.csv";
+        String vehicleInputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/kelheim/output/delay/fleet35/it5000+0.2/drt_vehicle_stats_drt.csv";
+        String outputFilePath = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/kelheim/output/delay/fleet35/it5000+0.2/drt_performance_analysis.csv";
 
         Network network = NetworkUtils.readNetwork(networkFile);
         TravelTime travelTimes = new QSimFreeSpeedTravelTime(1);
@@ -96,17 +96,16 @@ public class DrtPerformanceAnalysis {
                 requestCount++;
             }
 
-            String outputFilePathWithDelay = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/mielec/output/ridingTime_fleet13/it10000/output_drt_legs_drt_withDelay.csv";
+            String outputFilePathWithDelay = "D:/Module/Masterarbeit/drt-operation-experiments/scenarios/kelheim/output/delay/fleet35/it5000+0.2/output_drt_legs_drt_withDelay.csv";
             CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(outputFilePathWithDelay),
                     CSVFormat.Builder.create()
                             .setDelimiter(';')
                             .setHeader(headers.toArray(new String[0]))
                             .build());
-                for (List<Object> updatedRecord : updatedRecords) {
-                    csvPrinter.printRecord(updatedRecord);
-                }
+            for (List<Object> updatedRecord : updatedRecords) {
+                csvPrinter.printRecord(updatedRecord);
+            }
             log.info("output_drt_legs_drt_with_delay.csv file is updated");
-
 
 
             double travelTime_mean = totalTravelTime / requestCount;
@@ -149,30 +148,5 @@ public class DrtPerformanceAnalysis {
             e.printStackTrace();
         }
 
-    }
-
-    static class VehicleDrivingTimeHandler implements VehicleEntersTrafficEventHandler, VehicleLeavesTrafficEventHandler {
-        private double totalDrivingTime;
-
-        @Override
-        public void reset(int iteration) {
-            totalDrivingTime = 0;
-        }
-
-        @Override
-        public void handleEvent(VehicleEntersTrafficEvent vehicleEntersTrafficEvent) {
-            double enterTime = vehicleEntersTrafficEvent.getTime();
-            totalDrivingTime -= enterTime;
-        }
-
-        @Override
-        public void handleEvent(VehicleLeavesTrafficEvent vehicleLeavesTrafficEvent) {
-            double leavingTime = vehicleLeavesTrafficEvent.getTime();
-            totalDrivingTime += leavingTime;
-        }
-
-        public double getTotalDrivingTime() {
-            return totalDrivingTime;
-        }
     }
 }

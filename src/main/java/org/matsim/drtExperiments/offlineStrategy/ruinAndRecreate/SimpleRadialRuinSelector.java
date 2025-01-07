@@ -15,16 +15,18 @@ import java.util.List;
 import java.util.Random;
 
 
-public class SimpleRadialRuinSelector implements RuinSelector{
+public class SimpleRadialRuinSelector implements RuinSelector {
     private final Random random;
     private final double proportion_to_remove;
 
     private final Network network;
-    public SimpleRadialRuinSelector(Random random, double proportion_to_remove, Network  network){
+
+    public SimpleRadialRuinSelector(Random random, double proportion_to_remove, Network network) {
         this.random = random;
-        this.proportion_to_remove  = proportion_to_remove;
+        this.proportion_to_remove = proportion_to_remove;
         this.network = network;
     }
+
     @Override
     public List<GeneralRequest> selectRequestsToBeRuined(FleetSchedules fleetSchedules) {
         List<GeneralRequest> openRequests = new ArrayList<>();

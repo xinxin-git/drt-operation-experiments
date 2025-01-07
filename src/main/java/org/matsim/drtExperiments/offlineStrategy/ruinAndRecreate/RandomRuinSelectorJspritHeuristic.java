@@ -12,13 +12,13 @@ import java.util.Random;
 /**
  * random ruin strategy heuristic from Jsprit, the number to removed is not determined *
  */
-public class RandomRuinSelectorJspritHeuristic implements RuinSelector{
+public class RandomRuinSelectorJspritHeuristic implements RuinSelector {
     private final Random random;
     private final double max_proportion_to_remove;
     private final double min_proportion_to_remove;
     private double proportion_to_remove;
 
-    public RandomRuinSelectorJspritHeuristic(Random random, double max_proportion_to_remove, double min_proportion_to_remove){
+    public RandomRuinSelectorJspritHeuristic(Random random, double max_proportion_to_remove, double min_proportion_to_remove) {
         this.random = random;
         if (max_proportion_to_remove < min_proportion_to_remove) {
             throw new IllegalArgumentException("maxProportionToRemove must be greater than or equal to minProportionToRemove");
@@ -27,7 +27,8 @@ public class RandomRuinSelectorJspritHeuristic implements RuinSelector{
         this.min_proportion_to_remove = min_proportion_to_remove;
 
     }
-    private double CalcuProportionToRemove(){
+
+    private double CalcuProportionToRemove() {
         double proportion = min_proportion_to_remove + (max_proportion_to_remove - min_proportion_to_remove) * random.nextDouble();
         proportion_to_remove = proportion;
         return proportion;

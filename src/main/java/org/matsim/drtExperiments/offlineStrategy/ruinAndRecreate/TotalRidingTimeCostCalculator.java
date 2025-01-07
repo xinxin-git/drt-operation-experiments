@@ -11,9 +11,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TotalRidingTimeCostCalculator implements SolutionCostCalculator{
+public class TotalRidingTimeCostCalculator implements SolutionCostCalculator {
     private static final Logger log = LogManager.getLogger(TotalRidingTimeCostCalculator.class);
     private static final double REJECTION_COST = 1e6;
+
     @Override
     public double calculateSolutionCost(FleetSchedules fleetSchedules, double now) {
         double totalRidingTime = 0;
@@ -21,14 +22,14 @@ public class TotalRidingTimeCostCalculator implements SolutionCostCalculator{
         Map<Id<Person>, Double> personArrivalTimeMap = new LinkedHashMap<>();
         Map<Id<Person>, Double> personRidingTimeMap = new LinkedHashMap<>();
         //initialized departure time of all passengers
-        for (Id<Person> personId: fleetSchedules.requestIdToVehicleMap().keySet()){
-            personDepartureTimeMap.put(personId,now);
+        for (Id<Person> personId : fleetSchedules.requestIdToVehicleMap().keySet()) {
+            personDepartureTimeMap.put(personId, now);
         }
         //update departure or arrival time of passengers
-        for (List<TimetableEntry> timetable : fleetSchedules.vehicleToTimetableMap().values()){
-            for (TimetableEntry stop : timetable){
+        for (List<TimetableEntry> timetable : fleetSchedules.vehicleToTimetableMap().values()) {
+            for (TimetableEntry stop : timetable) {
                 Id<Person> passengerId = stop.getRequest().getPassengerId();
-                if (stop.getStopType() == TimetableEntry.StopType.PICKUP){
+                if (stop.getStopType() == TimetableEntry.StopType.PICKUP) {
                     personDepartureTimeMap.put(passengerId, stop.getDepartureTime());
                 } else {
                     personArrivalTimeMap.put(passengerId, stop.getArrivalTime());

@@ -10,7 +10,7 @@ import java.util.*;
  * remove requests from the randomly selected round trip *
  */
 
-public class SequentialRuinSelector implements RuinSelector{
+public class SequentialRuinSelector implements RuinSelector {
     private final Random random;
     private final double proportion_to_remove;
 
@@ -34,10 +34,10 @@ public class SequentialRuinSelector implements RuinSelector{
         numToRemoved = Math.min(numToRemoved, maxRemoval);
         numToRemoved = Math.min(numToRemoved, openRequests.size());
 
-        while (requestsToBeRuined.size() < numToRemoved){
+        while (requestsToBeRuined.size() < numToRemoved) {
             List<TimetableEntry> selectedTrip = allTours.get(random.nextInt(allTours.size()));
-            for (GeneralRequest openRequest : getRequestsFromTrip(selectedTrip)){
-                if (requestsToBeRuined.size()  >= numToRemoved){
+            for (GeneralRequest openRequest : getRequestsFromTrip(selectedTrip)) {
+                if (requestsToBeRuined.size() >= numToRemoved) {
                     break;
                 }
                 requestsToBeRuined.add(openRequest);

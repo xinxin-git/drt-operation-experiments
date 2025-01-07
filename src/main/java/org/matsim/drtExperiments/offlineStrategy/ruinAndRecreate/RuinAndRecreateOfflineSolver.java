@@ -51,7 +51,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
         //RuinSelector ruinSelector = new MultiRadialRuinSelector(random,proportion_to_remove,network,radius);
         //RuinSelector ruinSelector = new SequentialRuinSelector(random,proportion_to_remove);
 
-        //SolutionCostCalculator solutionCostCalculator = new DefaultSolutionCostCalculator();
+        SolutionCostCalculator solutionCostCalculator = new DefaultSolutionCostCalculator();
         //SolutionCostCalculator solutionCostCalculator = new TotalRidingTimeCostCalculator();
 
 
@@ -61,7 +61,7 @@ public record RuinAndRecreateOfflineSolver(int maxIterations, Network network, T
 
         //RuinSelector ruinSelector = new MaxCostRuinSelector(proportion_to_remove,onlineVehicleInfoMap,network,linkToLinkTravelTimeMatrix);
 
-        SolutionCostCalculator solutionCostCalculator = new TotalDelayCostCalculator(network);
+        //SolutionCostCalculator solutionCostCalculator = new TotalDelayCostCalculator(network);
         //SolutionCostCalculator solutionCostCalculator = new CompositeCostCalculator(network,linkToLinkTravelTimeMatrix, totalDrivingTimeShare, totalRidingTimeShare, totalDelayShare);
 
         // update schedules based on the latest travel time estimation and current locations
